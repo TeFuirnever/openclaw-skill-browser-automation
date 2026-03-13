@@ -15,7 +15,12 @@ import { capabilityAllowed } from './capabilities.js';
 import { writeAudit } from './audit.js';
 import { createResourceStore, ResourceStore } from './resource-store.js';
 import { isBrowserTool } from './tools.js';
-import { addUserDomain, removeUserDomain, listUserDomains, getBrowserConfig } from './userConfig.js';
+import {
+  addUserDomain,
+  removeUserDomain,
+  listUserDomains,
+  getBrowserConfig,
+} from './userConfig.js';
 import type { PolicyDecision, ServerPolicy } from './policyTypes.js';
 
 const CDP_ENDPOINT = 'http://localhost:9222';
@@ -377,18 +382,23 @@ export function createToolHandler(options: ToolHandlerOptions = {}) {
       try {
         browser = await chromium.connectOverCDP(CDP_ENDPOINT);
       } catch {
-        const isDocker = fs.existsSync('/.dockerenv');
+        // Note: Docker detection available for future use
+        // const isDocker = fs.existsSync('/.dockerenv');
         const userBrowserConfig = getBrowserConfig();
 
         // Config priority: env var > user config > default (headless)
-        const headless = process.env.PLAYWRIGHT_HEADLESS !== undefined
-          ? process.env.PLAYWRIGHT_HEADLESS === 'true'
-          : userBrowserConfig.headless ?? true;
+        const headless =
+          process.env.PLAYWRIGHT_HEADLESS !== undefined
+            ? process.env.PLAYWRIGHT_HEADLESS === 'true'
+            : (userBrowserConfig.headless ?? true);
 
         const launchOptions: { headless: boolean; args?: string[] } = { headless };
 
         // Enable DevTools in non-headless mode (devtools flag only works with headed mode)
-        if (!headless && (process.env.PLAYWRIGHT_DEVTOOLS === 'true' || userBrowserConfig.devtools)) {
+        if (
+          !headless &&
+          (process.env.PLAYWRIGHT_DEVTOOLS === 'true' || userBrowserConfig.devtools)
+        ) {
           launchOptions.args = ['--auto-open-devtools-for-tabs'];
         }
 

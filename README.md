@@ -1,11 +1,14 @@
 # Matrix Playwright MCP Server
 
+[![npm version](https://img.shields.io/npm/v/@matrix/mcp-playwright-server.svg)](https://www.npmjs.com/package/@matrix/mcp-playwright-server)
 [![smithery badge](https://smithery.ai/badge/@matrix/mcp-playwright-server)](https://smithery.ai/server/@matrix/mcp-playwright-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Node.js Version](https://img.shields.io/badge/Node.js-18%20%7C%2020%20%7C%2022-green.svg)](./package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](./package.json)
 [![Playwright](https://img.shields.io/badge/Playwright-1.58-orange.svg)](./package.json)
 [![MCP SDK](https://img.shields.io/badge/MCP-1.27-purple.svg)](./package.json)
+[![CI](https://github.com/TeFuirnever/mcp-playwright-server/actions/workflows/ci.yml/badge.svg)](https://github.com/TeFuirnever/mcp-playwright-server/actions)
+[![codecov](https://codecov.io/gh/TeFuirnever/mcp-playwright-server/branch/main/graph/badge.svg)](https://codecov.io/gh/TeFuirnever/mcp-playwright-server)
 
 **MCP server for web automation** with Playwright - featuring query-first tools, policy-driven security, and two-level domain whitelisting.
 
