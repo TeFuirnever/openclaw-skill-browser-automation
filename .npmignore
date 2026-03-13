@@ -1,0 +1,37 @@
+# Source files
+src/
+tests/
+tasks/
+
+# Configuration
+.eslintrc*
+.eslint.config.mjs
+.prettierrc
+.prettierignore
+tsconfig.json
+
+# Development
+.git/
+.github/
+.claude/
+node_modules/
+coverage/
+dist/
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env*
+*.local
+
+# Misc
+*.log
+.DS_Store

@@ -1,68 +1,46 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { 
-  ListResourcesRequestSchema, 
-  ReadResourceRequestSchema, 
-  ListToolsRequestSchema, 
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import {
+  ErrorCode,
+  McpError,
+  ListResourcesRequestSchema,
+  ReadResourceRequestSchema,
+  ListToolsRequestSchema,
   CallToolRequestSchema,
-  Tool
-} from "@modelcontextprotocol/sdk/types.js";
-import { handleToolCall, getConsoleLogs, getScreenshots } from "./toolsHandler.js";
+  Tool,
+  CallToolResult,
+} from '@modelcontextprotocol/sdk/types.js';
+import { ResourceStore } from './resource-store.js';
 
-export function setupRequestHandlers(server: Server, tools: Tool[]) {
-  // List resources handler
+export interface RequestHandlerDependencies {
+  handleToolCall(name: string, rawArgs: unknown, server: unknown): Promise<CallToolResult>;
+  resourceStore: ResourceStore;
+}
+
+export function setupRequestHandlers(
+  server: Server,
+  tools: Tool[],
+  dependencies: RequestHandlerDependencies
+) {
   server.setRequestHandler(ListResourcesRequestSchema, async () => ({
-    resources: [
-      {
-        uri: "console://logs",
-        mimeType: "text/plain",
-        name: "Browser console logs",
-      },
-      ...Array.from(getScreenshots().keys()).map(name => ({
-        uri: `screenshot://${name}`,
-        mimeType: "image/png",
-        name: `Screenshot: ${name}`,
-      })),
-    ],
+    resources: dependencies.resourceStore.listResources(),
   }));
 
-  // Read resource handler
-  server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+  server.setRequestHandler(ReadResourceRequestSchema, async request => {
     const uri = request.params.uri.toString();
+    const contents = dependencies.resourceStore.readResource(uri);
 
-    if (uri === "console://logs") {
-      return {
-        contents: [{
-          uri,
-          mimeType: "text/plain",
-          text: getConsoleLogs().join("\n"),
-        }],
-      };
+    if (!contents) {
+      throw new McpError(ErrorCode.InvalidParams, `Resource not found: ${uri}`);
     }
 
-    if (uri.startsWith("screenshot://")) {
-      const name = uri.split("://")[1];
-      const screenshot = getScreenshots().get(name);
-      if (screenshot) {
-        return {
-          contents: [{
-            uri,
-            mimeType: "image/png",
-            blob: screenshot,
-          }],
-        };
-      }
-    }
-
-    throw new Error(`Resource not found: ${uri}`);
+    return { contents };
   });
 
-  // List tools handler
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools,
+    tools,
   }));
 
-  // Call tool handler
-  server.setRequestHandler(CallToolRequestSchema, async (request) =>
-    handleToolCall(request.params.name, request.params.arguments ?? {}, server)
+  server.setRequestHandler(CallToolRequestSchema, async request =>
+    dependencies.handleToolCall(request.params.name, request.params.arguments ?? {}, server)
   );
 }

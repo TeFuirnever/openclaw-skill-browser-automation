@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/TeFuirnever/mcp-playwright-server#readme
+    about: Check the documentation for usage guides and examples
+  - name: 💬 Discussions
+    url: https://github.com/TeFuirnever/mcp-playwright-server/discussions
+    about: Ask questions, share ideas, and engage with the community

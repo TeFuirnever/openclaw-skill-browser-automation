@@ -1,8 +1,8 @@
 # Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
 
-name: "@lars-hagen/mcp-playwright-cdp"
-displayName: "Playwright CDP"
-description: "Model Context Protocol server for Playwright with Chrome DevTools Protocol support"
+name: "@matrix/mcp-playwright-server"
+displayName: "Playwright MCP Server"
+description: "MCP server for web automation, search, and content extraction using Playwright"
 
 startCommand:
   type: stdio

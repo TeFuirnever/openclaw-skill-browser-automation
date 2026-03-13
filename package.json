@@ -1,15 +1,15 @@
 {
-  "name": "@lars-hagen/mcp-playwright-cdp",
-  "version": "0.2.10",
-  "description": "Model Context Protocol server for Playwright with Chrome DevTools Protocol support",
+  "name": "@matrix/mcp-playwright-server",
+  "version": "0.3.0",
+  "description": "MCP server for web automation, search, and content extraction using Playwright",
   "license": "MIT",
-  "author": "Lars Hagen",
-  "homepage": "https://github.com/lars-hagen/mcp-playwright-cdp",
-  "bugs": "https://github.com/lars-hagen/mcp-playwright-cdp/issues",
+  "author": "Matrix",
+  "homepage": "https://github.com/TeFuirnever/mcp-playwright-server#readme",
+  "bugs": "https://github.com/TeFuirnever/mcp-playwright-server/issues",
   "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
-    "mcp-playwright-cdp": "dist/index.js"
+    "matrix-mcp-playwright": "dist/index.js"
   },
   "files": [
     "dist"
@@ -17,16 +17,21 @@
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
     "prepare": "npm run build",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "test:coverage": "npm run build && c8 node --test tests/*.test.mjs",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lars-hagen/mcp-playwright-cdp.git"
+    "url": "https://github.com/TeFuirnever/mcp-playwright-server.git"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.4.1",
-    "playwright": "1.50.0",
-    "@playwright/browser-chromium": "1.50.0"
+    "@modelcontextprotocol/sdk": "1.27.1",
+    "playwright": "1.58.2",
+    "@playwright/browser-chromium": "1.58.2"
   },
   "keywords": [
     "playwright",
@@ -36,9 +41,17 @@
     "CDP",
     "Chrome DevTools Protocol"
   ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "devDependencies": {
     "@types/node": "^20.10.5",
-    "shx": "^0.3.4",
-    "typescript": "^5.6.2"
+    "shx": "^0.4.0",
+    "typescript": "^5.6.2",
+    "eslint": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "prettier": "^3.0.0",
+    "c8": "^10.0.0"
   }
 }
