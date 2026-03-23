@@ -1,22 +1,53 @@
 {
   "name": "@openclaw/skill-browser-automation",
-  "version": "1.0.0",
-  "description": "OpenClaw skill for browser automation using @playwright/mcp",
+  "version": "1.1.0",
+  "description": "OpenClaw skill for browser automation with web search and fetch capabilities",
   "license": "MIT",
   "author": "OpenClaw",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "openclaw-browser-skill": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
   "keywords": [
     "openclaw",
     "skill",
     "browser",
     "playwright",
     "automation",
-    "web-scraping"
+    "web-scraping",
+    "web-search",
+    "web-fetch"
   ],
   "files": [
+    "dist/",
     "skills/"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/openclaw/skill-browser-automation.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@playwright/mcp": "^0.0.68",
+    "playwright": "^1.42.0",
+    "node-fetch": "^3.3.2",
+    "@mozilla/readability": "^0.5.0",
+    "jsdom": "^24.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/jsdom": "^21.1.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0",
+    "@vitest/ui": "^2.0.0",
+    "@vitest/coverage-v8": "^2.0.0"
   }
 }

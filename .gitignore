@@ -1,3 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# npm pack output
+*.tgz
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -5,9 +18,29 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # Logs
 *.log
+npm-debug.log*
 
-# Internal/AI files
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# AI/IDE assistant files
 .claude/
+.cursor/
+.aider*
+
+# Misc
+*.bak
+*.tmp
+SECURITY_REPORT.md
