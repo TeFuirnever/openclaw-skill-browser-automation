@@ -1,59 +1,22 @@
 {
-  "name": "@matrix/mcp-playwright-server",
-  "version": "0.3.0",
-  "description": "MCP server for web automation, search, and content extraction using Playwright",
+  "name": "@openclaw/skill-browser-automation",
+  "version": "1.0.0",
+  "description": "OpenClaw skill for browser automation using @playwright/mcp",
   "license": "MIT",
-  "author": "Matrix",
-  "homepage": "https://github.com/TeFuirnever/mcp-playwright-server#readme",
-  "bugs": "https://github.com/TeFuirnever/mcp-playwright-server/issues",
-  "types": "dist/index.d.ts",
-  "type": "module",
-  "bin": {
-    "matrix-mcp-playwright": "dist/index.js"
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsc && shx chmod +x dist/*.js",
-    "prepare": "npm run build",
-    "watch": "tsc --watch",
-    "test": "npm run build && node --test tests/*.test.mjs",
-    "test:coverage": "npm run build && c8 node --test tests/*.test.mjs",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\"",
-    "typecheck": "tsc --noEmit"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/TeFuirnever/mcp-playwright-server.git"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "1.27.1",
-    "playwright": "1.58.2",
-    "@playwright/browser-chromium": "1.58.2"
-  },
+  "author": "OpenClaw",
   "keywords": [
+    "openclaw",
+    "skill",
+    "browser",
     "playwright",
     "automation",
-    "AI",
-    "Claude MCP",
-    "CDP",
-    "Chrome DevTools Protocol"
+    "web-scraping"
   ],
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.10.5",
-    "shx": "^0.4.0",
-    "typescript": "^5.6.2",
-    "eslint": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "prettier": "^3.0.0",
-    "c8": "^10.0.0"
+  "files": [
+    "skills/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openclaw/skill-browser-automation.git"
   }
 }
