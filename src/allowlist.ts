@@ -52,8 +52,9 @@ export class AllowlistManager {
         writeFileSync(this.configPath, JSON.stringify(DEFAULT_CONFIG, null, 2));
         this.config = { ...DEFAULT_CONFIG };
       }
-    } catch {
+    } catch (error) {
       // If loading fails, use default config (security: fail closed)
+      console.error('[AllowlistManager] Failed to load config file:', this.configPath, 'Error:', error instanceof Error ? error.message : String(error));
       this.config = { ...DEFAULT_CONFIG };
     }
   }
@@ -198,7 +199,8 @@ export class AllowlistManager {
           reason: `Invalid URL scheme: ${urlObj.protocol}. Only http and https are allowed.`,
         };
       }
-    } catch {
+    } catch (error) {
+      console.error('[AllowlistManager] URL parsing failed:', url, 'Error:', error instanceof Error ? error.message : String(error));
       return {
         allowed: false,
         reason: 'Invalid URL format',
