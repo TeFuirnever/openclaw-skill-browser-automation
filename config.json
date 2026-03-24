@@ -8,10 +8,7 @@
   "enabled": true,
   "defaultAction": "deny",
   "domains": [
-    { "domain": "duckduckgo.com", "description": "Privacy-focused search engine" },
-    { "domain": "*.duckduckgo.com", "description": "DuckDuckGo subdomains" },
     { "domain": "bing.com", "description": "Microsoft search engine" },
-    { "domain": "*.bing.com", "description": "Bing subdomains" },
+    { "domain": "*.bing.com", "description": "Bing subdomains" }
   ]
-}
 }

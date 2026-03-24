@@ -23,8 +23,8 @@ const tools = [
         query: { type: 'string', description: 'Search query' },
         engine: {
           type: 'string',
-          enum: ['duckduckgo', 'bing'],
-          default: 'duckduckgo',
+          enum: ['bing'],
+          default: 'bing',
           description: 'Search engine to use',
         },
         limit: { type: 'number', default: 10, description: 'Max results to return' },
@@ -334,33 +334,18 @@ async function validateCurrentPageUrl(): Promise<void> {
   }
 }
 
-function buildSearchUrl(query: string, engine: string): string {
+function buildSearchUrl(query: string): string {
   const encoded = encodeURIComponent(query);
-  switch (engine) {
-    case 'bing':
-      return `https://www.bing.com/search?q=${encoded}`;
-    case 'duckduckgo':
-    default:
-      return `https://duckduckgo.com/?q=${encoded}`;
-  }
+  return `https://www.bing.com/search?q=${encoded}`;
 }
 
-async function extractSearchResults(page: Page, engine: string, limit: number) {
+async function extractSearchResults(page: Page, limit: number) {
   await page.waitForLoadState('domcontentloaded');
 
   const results = await page.evaluate(
-    ({ engine, limit }) => {
+    ({ limit }) => {
       const items: Array<{ title: string; url: string; snippet: string }> = [];
-      let selectors: string[];
-
-      switch (engine) {
-        case 'bing':
-          selectors = ['#b_results .b_algo', '.b_algo'];
-          break;
-        case 'duckduckgo':
-        default:
-          selectors = ['#links .result', '.result', '[data-testid="result"]'];
-      }
+      const selectors = ['#b_results .b_algo', '.b_algo'];
 
       for (const selector of selectors) {
         const elements = document.querySelectorAll(selector);
@@ -388,7 +373,7 @@ async function extractSearchResults(page: Page, engine: string, limit: number) {
 
       return items;
     },
-    { engine, limit }
+    { limit }
   );
 
   return results;
@@ -396,7 +381,7 @@ async function extractSearchResults(page: Page, engine: string, limit: number) {
 
 async function handleWebSearch(args: Record<string, unknown>) {
   const query = args.query as string;
-  const engine = (args.engine as string) || 'duckduckgo';
+  const engine = (args.engine as string) || 'bing';
   const limit = Math.min((args.limit as number) || 10, 50);
 
   if (!query || query.trim().length === 0) {
@@ -404,7 +389,7 @@ async function handleWebSearch(args: Record<string, unknown>) {
   }
 
   const currentPage = await ensureBrowser();
-  const searchUrl = buildSearchUrl(query, engine);
+  const searchUrl = buildSearchUrl(query);
 
   // Validate search URL against allowlist
   const validation = allowlistManager.validateUrl(searchUrl);
@@ -416,7 +401,7 @@ async function handleWebSearch(args: Record<string, unknown>) {
   }
 
   await currentPage.goto(searchUrl, { timeout: 30000, waitUntil: 'domcontentloaded' });
-  const results = await extractSearchResults(currentPage, engine, limit);
+  const results = await extractSearchResults(currentPage, limit);
 
   const output = results
     .map((r, i) => `${i + 1}. ${r.title}\n   URL: ${r.url}\n   ${r.snippet}`)

@@ -17,7 +17,7 @@ Comprehensive browser automation with web search, fetch, and content extraction.
 
 | Tool | Purpose |
 |------|---------|
-| `browser_web_search` | Search the web using DuckDuckGo or Bing |
+| `browser_web_search` | Search the web using Bing |
 | `browser_web_fetch` | Fetch page content via HTTP GET |
 | `browser_extract` | Extract readable text from any web page |
 
@@ -42,7 +42,7 @@ Run a web search and get structured results.
 ```json
 {
   "query": "MCP protocol documentation",
-  "engine": "duckduckgo",  // or "bing"
+  "engine": "bing",
   "limit": 10
 }
 ```
