@@ -618,7 +618,6 @@ async function handleClick(args: Record<string, unknown>) {
   const ref = args.ref as string;
 
   try {
-    await validateCurrentPageUrl();
     const currentPage = await ensureBrowser();
 
     // Use ref as selector or aria-label
@@ -644,7 +643,6 @@ async function handleType(args: Record<string, unknown>) {
   const text = args.text as string;
 
   try {
-    await validateCurrentPageUrl();
     const currentPage = await ensureBrowser();
 
     try {

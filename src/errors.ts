@@ -104,30 +104,27 @@ export class BrowserSkillError extends Error {
 }
 
 /**
+ * URL-related error codes that can be used with createUrlError
+ */
+export type UrlErrorCode =
+  | ErrorCode.URL_REQUIRED
+  | ErrorCode.URL_INVALID_FORMAT
+  | ErrorCode.URL_SCHEME_NOT_ALLOWED
+  | ErrorCode.URL_DOMAIN_NOT_ALLOWED
+  | ErrorCode.URL_IP_NOT_ALLOWED
+  | ErrorCode.URL_REDIRECT_BLOCKED;
+
+/**
  * Create URL validation error
  */
-export function createUrlError(code: ErrorCode, url: string, reason?: string): BrowserSkillError {
-  const messages: Record<ErrorCode, string> = {
+export function createUrlError(code: UrlErrorCode, url: string, reason?: string): BrowserSkillError {
+  const messages: Record<UrlErrorCode, string> = {
     [ErrorCode.URL_REQUIRED]: 'URL is required',
     [ErrorCode.URL_INVALID_FORMAT]: `Invalid URL format: "${url}"`,
     [ErrorCode.URL_SCHEME_NOT_ALLOWED]: `URL scheme not allowed: "${url}". Only http and https are supported.`,
     [ErrorCode.URL_DOMAIN_NOT_ALLOWED]: `Domain not allowed: "${url}"${reason ? `. ${reason}` : ''}`,
     [ErrorCode.URL_IP_NOT_ALLOWED]: `IP addresses are not allowed: "${url}"`,
     [ErrorCode.URL_REDIRECT_BLOCKED]: `Redirect blocked: "${url}"${reason ? `. ${reason}` : ''}`,
-    [ErrorCode.PARAM_REQUIRED]: '',
-    [ErrorCode.PARAM_INVALID]: '',
-    [ErrorCode.BROWSER_LAUNCH_FAILED]: '',
-    [ErrorCode.BROWSER_PAGE_LOAD_FAILED]: '',
-    [ErrorCode.BROWSER_ELEMENT_NOT_FOUND]: '',
-    [ErrorCode.BROWSER_TIMEOUT]: '',
-    [ErrorCode.BROWSER_CLOSED]: '',
-    [ErrorCode.NETWORK_REQUEST_FAILED]: '',
-    [ErrorCode.NETWORK_TIMEOUT]: '',
-    [ErrorCode.CONTENT_EXTRACTION_FAILED]: '',
-    [ErrorCode.CONTENT_TOO_LARGE]: '',
-    [ErrorCode.SECURITY_PAGE_NOT_ALLOWED]: '',
-    [ErrorCode.SECURITY_OPERATION_BLOCKED]: '',
-    [ErrorCode.UNKNOWN_ERROR]: '',
   };
 
   return new BrowserSkillError(code, messages[code], { details: { url, reason } });
