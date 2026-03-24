@@ -12,10 +12,6 @@ const DEFAULT_CONFIG = {
         { domain: '*.duckduckgo.com', description: 'DuckDuckGo subdomains' },
         { domain: 'bing.com', description: 'Microsoft search engine' },
         { domain: '*.bing.com', description: 'Bing subdomains' },
-        { domain: '*.wikipedia.org', description: 'Wikipedia sites' },
-        { domain: 'github.com', description: 'Software development platform' },
-        { domain: '*.github.com', description: 'GitHub subdomains' },
-        { domain: '*.github.io', description: 'GitHub Pages' },
     ],
 };
 /**
