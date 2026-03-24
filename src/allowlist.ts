@@ -6,7 +6,7 @@ import type { AllowlistConfig, ValidationResult } from './types.js';
  * Default allowlist configuration
  */
 const DEFAULT_CONFIG: AllowlistConfig = {
-  version: '1.0.0',
+  version: '1.1.0',
   enabled: false,
   defaultAction: 'deny',
   domains: [

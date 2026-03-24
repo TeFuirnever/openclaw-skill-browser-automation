@@ -2,10 +2,10 @@
   "$schema": "./config.schema.json",
   "server": {
     "name": "browser-automation",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
-  "version": "1.0.0",
-  "enabled": false,
+  "version": "1.1.0",
+  "enabled": true,
   "defaultAction": "deny",
   "domains": [
     { "domain": "duckduckgo.com", "description": "Privacy-focused search engine" },
