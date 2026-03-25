@@ -189,6 +189,24 @@ let browserMode: 'cdp' | 'playwright' | null = null;
 const DEFAULT_CDP_ENDPOINT = 'http://localhost:9222';
 const MAX_REDIRECT_DEPTH = 5;
 
+// Browser mode configuration - can be overridden by BROWSER_MODE env var
+const FORCE_CDP_MODE = process.env.BROWSER_MODE === 'cdp';
+
+// Tool categories for intelligent browser mode selection
+const INTERACTIVE_TOOLS = [
+  'browser_navigate',
+  'browser_click',
+  'browser_type',
+  'browser_attach_tab',
+  'browser_list_tabs',
+]; // Tools that benefit from visible UI
+
+const AUTO_TOOLS = [
+  'browser_web_search',
+  'browser_web_fetch',
+  'browser_extract',
+]; // Tools that work best in headless mode
+
 /**
  * Validate CDP endpoint URL to prevent SSRF attacks.
  * Only allows localhost connections for security.
@@ -235,17 +253,34 @@ const allowlistManager = new AllowlistManager(defaultConfigPath);
 
 // Help message for Chrome setup
 const CHROME_SETUP_GUIDE = `
-📱 Browser Setup Required
+📱 Smart Browser Mode Selection
 
-This skill requires Chrome with remote debugging enabled.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           Best Practice: Intelligent Mode Selection
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Quick Setup (one-time):
-────────────────────────
-Linux:    google-chrome --remote-debugging-port=9222
-macOS:    /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222
-Windows:  chrome.exe --remote-debugging-port=9222
+Auto Tools (search/fetch/extract):
+  → Headless mode (fast, efficient, no UI)
+  → Best for: web_search, web_fetch, browser_extract
 
-Why? This allows the skill to control your Chrome browser safely.
+Interactive Tools (navigate/click/type/snapshot):
+  → CDP mode (visible Chrome UI)
+  → Best for: browser_navigate, browser_click, browser_type, browser_snapshot
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Override All Tools:
+  Set environment variable: export BROWSER_MODE=cdp
+  → Forces all tools to use local Chrome (visible UI)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+To use local Chrome (visible UI):
+1. Linux:    google-chrome --remote-debugging-port=9222
+2. macOS:    /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222
+3. Windows:   chrome.exe --remote-debugging-port=9222
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
 
 /**
@@ -281,23 +316,55 @@ async function tryConnectToChrome(): Promise<boolean> {
 
 /**
  * Ensure browser is available.
- * Requires local Chrome with remote debugging - no auto-download.
+ * Smart mode selection:
+ *   - Auto tools (search/fetch): Headless by default
+ *   - Interactive tools (click/type): CDP by default
+ *   - Override: Set BROWSER_MODE=cdp to force CDP for all tools
  */
-async function ensureBrowser(): Promise<Page> {
+async function ensureBrowser(requireInteractive: boolean = false): Promise<Page> {
   if (browser && page) {
     return page;
   }
 
-  // Try local Chrome first
-  const chromeConnected = await tryConnectToChrome();
-  if (chromeConnected) {
-    return page!;
+  // Priority 1: Explicit CDP mode override
+  if (FORCE_CDP_MODE) {
+    const chromeConnected = await tryConnectToChrome();
+    if (chromeConnected) {
+      return page!;
+    }
+
+    // CDP mode requested but Chrome not available
+    throw new Error(
+      `CDP mode requested but Chrome not available.${CHROME_SETUP_GUIDE}` +
+      `After starting Chrome, retry your command.`
+    );
   }
 
-  // No Chrome available - show helpful error
-  throw new Error(
-    `Browser not available.${CHROME_SETUP_GUIDE}` + `After starting Chrome, retry your command.`
-  );
+  // Priority 2: Interactive mode requested (needs visible UI)
+  if (requireInteractive) {
+    const chromeConnected = await tryConnectToChrome();
+    if (chromeConnected) {
+      return page!;
+    }
+
+    // Interactive mode requires Chrome but not available
+    throw new Error(
+      `${CHROME_SETUP_GUIDE}` +
+      `Interactive mode (click/type) requires visible browser. ` +
+      `Start Chrome or use headless-only tools (search/fetch/extract).`
+    );
+  }
+
+  // Priority 3: Default to headless (best for automation)
+  console.error('[Browser] Using headless mode (fast, efficient for automation)');
+  browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
+  });
+  page = await browser.newPage();
+  browserMode = 'playwright';
+
+  return page!;
 }
 
 /**
@@ -388,7 +455,8 @@ async function handleWebSearch(args: Record<string, unknown>) {
     return { content: [{ type: 'text', text: 'Error: query is required' }], isError: true };
   }
 
-  const currentPage = await ensureBrowser();
+  // Auto tool: use headless for efficiency
+  const currentPage = await ensureBrowser(false);
   const searchUrl = buildSearchUrl(query);
 
   // Validate search URL against allowlist
@@ -548,8 +616,8 @@ async function handleExtract(args: Record<string, unknown>) {
       };
     }
 
-    // Fallback: extract by selector
-    const currentPage = await ensureBrowser();
+    // Fallback: extract by selector - interactive tool, needs visible UI
+    const currentPage = await ensureBrowser(true);
     await currentPage.goto(url, { timeout: 30000, waitUntil: 'load' });
     const text = await currentPage.locator(selector).innerText();
 
@@ -579,7 +647,8 @@ async function handleNavigate(args: Record<string, unknown>) {
     };
   }
 
-  const currentPage = await ensureBrowser();
+  // Interactive tool: needs visible UI
+  const currentPage = await ensureBrowser(true);
   await currentPage.goto(url, { timeout: 30000, waitUntil: 'load' });
   return {
     content: [{ type: 'text', text: `Navigated to: ${currentPage.url()}` }],
@@ -589,7 +658,8 @@ async function handleNavigate(args: Record<string, unknown>) {
 async function handleSnapshot() {
   try {
     await validateCurrentPageUrl();
-    const currentPage = await ensureBrowser();
+    // Interactive tool: needs visible UI to see accessibility
+    const currentPage = await ensureBrowser(true);
     const snapshot = await (currentPage as any).accessibility.snapshot();
     return {
       content: [{ type: 'text', text: JSON.stringify(snapshot, null, 2) }],
@@ -603,7 +673,8 @@ async function handleClick(args: Record<string, unknown>) {
   const ref = args.ref as string;
 
   try {
-    const currentPage = await ensureBrowser();
+    // Interactive tool: needs visible UI
+    const currentPage = await ensureBrowser(true);
 
     // Use ref as selector or aria-label
     try {
@@ -628,7 +699,8 @@ async function handleType(args: Record<string, unknown>) {
   const text = args.text as string;
 
   try {
-    const currentPage = await ensureBrowser();
+    // Interactive tool: needs visible UI
+    const currentPage = await ensureBrowser(true);
 
     try {
       await currentPage.fill(`[aria-label="${ref}"]`, text);
@@ -652,7 +724,8 @@ async function handleScreenshot(args: Record<string, unknown>) {
 
   try {
     await validateCurrentPageUrl();
-    const currentPage = await ensureBrowser();
+    // Interactive tool: needs visible UI
+    const currentPage = await ensureBrowser(true);
     const screenshot = await currentPage.screenshot({ fullPage, type: 'png' });
     const base64 = screenshot.toString('base64');
 
@@ -673,7 +746,8 @@ async function handleScreenshot(args: Record<string, unknown>) {
 async function handleWaitFor(args: Record<string, unknown>) {
   try {
     await validateCurrentPageUrl();
-    const currentPage = await ensureBrowser();
+    // Interactive tool: needs visible UI
+    const currentPage = await ensureBrowser(true);
 
     if (args.text) {
       await currentPage.waitForSelector(`text=${args.text}`, { timeout: 30000 });
@@ -943,8 +1017,8 @@ async function handleStatus() {
   }
 
   const modeDescription = {
-    cdp: 'Connected to local Chrome via CDP (reuses your Chrome)',
-    playwright: 'Playwright Chromium (headless browser)',
+    cdp: 'CDP Mode - Local Chrome (visible UI)',
+    playwright: 'Headless Mode - Playwright (fast, no UI)',
     null: 'Not connected',
   };
 
